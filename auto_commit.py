@@ -3,8 +3,8 @@ import sys
 import time
 from datetime import datetime
 
-# Default interval in seconds (60 minutes = 3600 seconds)
-DEFAULT_INTERVAL = 3600
+# Default interval in seconds (12 hours = 43200 seconds, resulting in 2 commits per day)
+DEFAULT_INTERVAL = 43200
 
 def run_commit():
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -14,27 +14,30 @@ def run_commit():
     with open("commits.txt", "a") as file:
         file.write(log_entry)
     
-    # Stage changes and commit
+    # Stage changes, commit, and push
     os.system("git add .")
     os.system(f'git commit -m "Auto commit at {timestamp}"')
     print(f"[{timestamp}] Changes committed successfully.")
+    
+    print(f"[{timestamp}] Pushing changes to remote...")
+    os.system("git push")
 
 def main():
-    # Get interval from command-line argument (in minutes)
-    # e.g., "python auto_commit.py 15" will commit every 15 minutes
+    # Get interval from command-line argument (in hours)
+    # e.g., "python auto_commit.py 12" will commit every 12 hours
     interval = DEFAULT_INTERVAL
     if len(sys.argv) > 1:
         try:
-            interval_mins = float(sys.argv[1])
-            interval = int(interval_mins * 60)
+            interval_hours = float(sys.argv[1])
+            interval = int(interval_hours * 3600)
             if interval <= 0:
                 raise ValueError
         except ValueError:
-            print("Invalid interval. Using default of 60 minutes.")
+            print("Invalid interval. Using default of 12 hours (2 commits per day).")
             interval = DEFAULT_INTERVAL
 
     print(f"Auto-commit daemon started.")
-    print(f"Interval: {interval / 60:.1f} minute(s)")
+    print(f"Interval: {interval / 3600:.1f} hour(s) (~{24 * 3600 / interval:.1f} commits per day)")
     print("Press Ctrl+C to stop the script.")
     
     try:
