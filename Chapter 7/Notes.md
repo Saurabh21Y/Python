@@ -1,283 +1,310 @@
-# Chapter 07: Conditional Statements & Control Flow in Python
-
-> **Topic Index:** 06 | **Prerequisites:** Python Operators  
-> **Original Concept Attribution:** Sheryians Coding School (Enhanced for DSA & Professional Development)
+# Python OOP: Conditional Statements & Control Flow
 
 ---
 
-## 📌 Introduction to Control Flow
+# 1. Definition
 
-By default, Python execution is **sequential**—it executes lines of code one after another from top to bottom. However, real-world applications require decision-making. We must execute specific blocks of code *only if* certain conditions are satisfied. 
+## Control Flow
+**Control Flow** is the order in which individual statements, instructions, or function calls are executed or evaluated in a running program. 
 
-These structures are called **Conditional Statements** or **Control Flow Statements** because they allow you to control the branching and execution path of your program.
+## Conditional Statements
+**Conditional Statements** are control structures that allow a program to branch its execution path. By evaluating Boolean expressions (which resolve to `True` or `False`), a program determines at runtime which block of code to run and which block to bypass.
 
-### 🔍 Real-World Analogy
-Suppose you are designing a system that accepts a number from a user:
-- If the number is **greater than 10**, the system executes **Task A**.
-- If the number is **10 or less**, the system executes **Task B**.
-
-Here, the input value *controls* the execution branch:
-
-```text
-               [ User Input Number ]
-                        |
-                        v
-              { Is Number > 10? }
-                 /          \
-         YES    /            \   NO
-               v              v
-          [ Task A ]      [ Task B ]
+```mermaid
+graph TD
+    Seq[Sequential Execution] --> Cond{Condition Evaluated}
+    Cond -- True --> BlockA[Execute Code Block A]
+    Cond -- False --> BlockB[Execute Code Block B]
+    BlockA --> Resume[Resume Main Flow]
+    BlockB --> Resume
 ```
 
 ---
 
-## 🛠️ Syntactic Architectures in Python
+# 2. Why Do We Need It?
 
-Python provides three primary syntactic structures to manage execution branches.
-
-### 1. The Simple `if` Statement
-Executes a block of code if and only if the underlying conditional expression evaluates to `True`.
+### The Problem With Strictly Sequential Execution
+Without control flow structures, code execution is purely linear. The interpreter executes line 1, then line 2, down to the final line, without exception.
 
 ```python
-# Syntax
-if condition:
-    # Code block executed if condition is True
-    statement_1
-    statement_2
+# Sequential execution
+print("User authorized")
+print("Display admin dashboard")
 ```
 
-### 2. The Dual-Branch `if-else` Statement
-Executes one block if the condition is `True`, and a fallback block if it evaluates to `False`.
+#### Issues:
+1. **No Decision Making**: The program cannot customize its responses based on inputs (e.g., checking if a password is correct).
+2. **Lack of Validation**: Invalid inputs (like dividing by zero) cannot be intercepted, crashing the application.
+3. **No Fallback Paths**: There is no way to define alternative outcomes or error-handling flows.
+
+---
+
+# 3. Real-Life Analogies
+
+### Analogy: The Railway Switch
+Imagine a train track:
+* A train is traveling down a single main track (Sequential execution).
+* It reaches a railway switch (Conditional statement).
+* If the switch is turned left (Condition: True), the train routes to Track A.
+* If the switch is turned right (Condition: False), the train routes to Track B.
+* The train cannot travel on both tracks simultaneously; the switch directs it to a single execution path.
+
+---
+
+# 4. Syntax
 
 ```python
-# Syntax
-if condition:
-    # Executed if condition is True
-    statement_1
+# 1. Standard if-elif-else Ladder
+score = 85
+
+if score >= 90:
+    grade = "A"
+elif score >= 80:
+    grade = "B"
 else:
-    # Executed if condition is False
-    statement_2
+    grade = "C"
+
+# 2. Inline Ternary Operator (Conditional Expression)
+status = "Pass" if score >= 40 else "Fail"
 ```
-
-### 3. The Multi-Branch `if-elif-else` Ladder
-Checks multiple conditions sequentially. The moment it encounters a condition that is `True`, it executes its associated block and exits the entire structure. If all conditions fail, the optional `else` block executes.
-
-```python
-# Syntax
-if condition_A:
-    # Executed if condition_A is True
-    block_A
-elif condition_B:
-    # Executed if condition_A is False AND condition_B is True
-    block_B
-elif condition_C:
-    # Executed if both A and B are False AND condition_C is True
-    block_C
-else:
-    # Executed if ALL conditions are False
-    fallback_block
-```
-
-> [!IMPORTANT]  
-> **The Indentation Rule:** Python does not use curly braces `{}` to define code blocks. Instead, it relies strictly on whitespace indentation (typically 4 spaces). Inconsistent indentation will raise an `IndentationError`.
+* **Explanation**: Demonstrates standard multi-branch selection and the Python ternary operator.
+* **Expected Output**: Compiles and executes.
+* **Memory Explanation**: Conditional checks read variables on the stack. The ternary expression evaluates a single object reference directly.
+* **Time Complexity**: $\mathcal{O}(1)$
+* **Space Complexity**: $\mathcal{O}(1)$ auxiliary space.
+* **Common Mistakes**: Forgetting the colon (`:`) after `if`, `elif`, or `else`, which raises a `SyntaxError`.
+* **Best Practices**: Use ternary operators only for simple, single-line assignments to keep code readable.
 
 ---
 
-## 🚀 Deep-Dive: The Ternary Operator for DSA
+# 5. Syntax Breakdown
 
-In Data Structures and Algorithms (DSA) interviews and competitive programming, writing clean, highly optimized, and concise logic is paramount. The **Ternary Operator** (formally known as a **Conditional Expression** in Python) is one of the most powerful tools to achieve this.
-
-### 📝 Syntax & Evaluation Semantics
-
-Unlike C++ or Java which use the `? :` symbol, Python uses a highly readable, natural-language syntax:
+Let's dissect the inline Ternary Operator:
 
 $$\text{Result} = \text{Expression}_{\text{True}} \ \mathbf{if} \ \text{Condition} \ \mathbf{else} \ \text{Expression}_{\text{False}}$$
 
-```python
-# Example:
-age = 20
-status = "Voter" if age >= 18 else "Non-Voter"
+* **`Expression_True`**: The value returned if the condition evaluates to `True`.
+* **`if Condition`**: The conditional check.
+* **`else Expression_False`**: The fallback value returned if the condition evaluates to `False`.
+
+---
+
+# 6. Memory Diagram
+
+When evaluating the ternary statement `val = node.val if node else 0` where `node` is `None`:
+
+```
+STACK                                      HEAP
+======================                     ============================================
+|  Name   | Reference|                     |  Address  | Object Type | Value          |
+======================                     ============================================
+|  node   |  0x0000  | ------------------> |  0x0000   | NoneType    | None           |
+----------------------                     ============================================
+|  val    |  0x100A  | ------------------> |  0x100A   | int         | 0              |
+======================                     ============================================
 ```
 
-### 🧠 Critical Difference: Expression vs. Statement
+* **Explanation**: Because `node` evaluates to `False` (is `None`), the condition fails. The expression short-circuits and binds `val` to the integer object `0` on the heap.
 
-Understanding the computer science difference between statements and expressions is vital for advanced coding:
+---
+
+# 7. Internal Working (Behind the Scenes)
+
+## Statements vs Expressions
+It is important to understand the technical difference:
+* **Statements** (like `if-else` blocks) perform actions but do not return a value. They cannot be assigned to variables or passed directly to functions.
+* **Expressions** (like the Ternary Operator) evaluate to a single value, allowing inline assignment, lambda returns, and functional arguments.
+
+## Jump Instructions in Bytecode
+Under the hood, the Python compiler compiles conditional statements into bytecode jump instructions (`POP_JUMP_IF_FALSE` or `POP_JUMP_IF_TRUE`). The PVM checks the top of the evaluation stack; if the value is false, it changes the instruction pointer to the address of the `else` or `elif` block.
+
+---
+
+# 8. Rules
+
+### Indentation Rules
+1. **Indentation is Mandatory**: Code blocks inside conditional branches must be indented (PEP 8 recommends exactly **4 spaces**). Mixing tabs and spaces will raise an `TabError`.
+2. **Order of Evaluation**: An `if-elif-else` ladder is evaluated sequentially from top to bottom. Once a condition evaluates to `True`, its block executes, and the remaining branches are skipped.
+
+---
+
+# 9. Naming Conventions (PEP 8)
+
+* Use snake_case for conditional flag variables.
+* Name boolean flags with prefix words like `is_`, `has_`, or `should_` (e.g., `is_authorized`, `has_permission`).
+
+| Variable Type | Bad Example | Good Example | Industry Standard |
+| :--- | :--- | :--- | :--- |
+| Boolean Flag | `active = True` | `is_active = True` | `is_system_initialized = True` |
+
+---
+
+# 10. Common Mistakes & Bugs
+
+### Mistake 1: The Indentation Error
+```python
+# BUGGY CODE
+if True:
+print("Hello")
+```
+* **Expected Output**: `IndentationError: expected an indented block`
+* **How to avoid**: Always indent the block inside conditionals.
+
+---
+
+### Mistake 2: Ternary Spaghetti
+```python
+# BUGGY CODE
+status = "Excellent" if score > 90 else "Good" if score > 80 else "Fair" if score > 70 else "Poor"
+```
+* **Why it happens**: Nesting multiple ternary operators in a single line.
+* **How to avoid**: Use standard `if-elif-else` ladders for structures with more than two branches.
+
+---
+
+# 11. Best Practices & Pythonic Code
+
+* **Use Guard Clauses**: Return early from functions to keep indentation levels shallow.
+```python
+# Pythonic Guard Clause
+def process_data(data):
+    if not data:
+        return None  # Guard Clause
+    # Process data with low indentation
+```
+
+---
+
+# 12. Interview Questions
+
+### Q1. How does Python's ternary operator prevent runtime errors when accessing attributes?
+* **Answer**: It evaluates lazily. If the condition checks that a reference exists, the expression branch that accesses the attribute is only evaluated if that condition is true.
+```python
+# Safe lookup
+val = node.val if node is not None else 0
+```
+
+---
+
+### Q2. Can an `else` statement exist without an `if` in Python?
+* **Answer**: Yes, but not in conditional branching. Python allows `else` blocks after `for` loops, `while` loops, and `try-except` blocks.
+
+---
+
+### Q3. Tricky Output Question
+**What is the output of the following function if `root` is `None`?**
+```python
+def max_depth(root):
+    return 0 if not root else 1 + max(max_depth(root.left), max_depth(root.right))
+```
+* **Expected Output**: `0`
+* **Explanation**: Since `root` is `None`, `not root` evaluates to `True`, returning the base case value `0` immediately.
+
+---
+
+# 13. Exam Points
+
+* **`elif`**: Short form of "else if" in Python.
+* **`if`**: The only mandatory statement in a conditional branch.
+* **Ternary Operator**: Syntactic shorthand for basic `if-else` returns.
+
+---
+
+# 14. Real-World Examples
+
+## Example 1: Recursive Binary Tree Base Cases (DSA Pattern)
+```python
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+
+def get_node_val(node: TreeNode | None) -> int:
+    # Safe attribute evaluation to prevent AttributeError
+    return node.val if node else 0
+```
+* **Explanation**: Safely extracts the value of a tree node.
+* **Expected Output**: Compiles.
+* **Time Complexity**: $\mathcal{O}(1)$
+
+---
+
+## Example 2: Dynamic Programming Table State transitions
+```python
+def lcs_transition(i: int, j: int, text1: str, text2: str, dp: list[list[int]]) -> int:
+    # DP lookup using inline ternary operator
+    return dp[i-1][j-1] + 1 if text1[i-1] == text2[j-1] else max(dp[i-1][j], dp[i][j-1])
+```
+* **Explanation**: Transition step calculation for the Longest Common Subsequence algorithm.
+* **Time Complexity**: $\mathcal{O}(1)$
+
+---
+
+# 15. Mini Practice
+
+### Easy
+Write a ternary operator that assigns `"Adult"` to `status` if `age` is 18 or older, and `"Minor"` otherwise.
+
+### Medium
+Implement a temperature classifier (`celsius < 0` is Freezing, `0-20` is Cold, `>20` is Warm) using a standard `if-elif-else` ladder.
+
+### Hard
+Write a leap year checker function that uses a single line ternary expression to return `True` or `False`.
+
+---
+
+# 16. Summary Table
+
+| Structure | Syntax Type | Nests Well | Returns a Value |
+| :--- | :--- | :--- | :--- |
+| **`if-elif-else`** | Statement | Yes | No |
+| **Ternary Operator** | Expression | No | Yes |
+
+---
+
+# 17. Cheat Sheet
+
+```python
+# Ternary
+val = x if cond else y
+
+# if-elif-else
+if cond1:
+    # Code
+elif cond2:
+    # Code
+else:
+    # Code
+```
+
+---
+
+# 18. Flow Diagram
+
+```mermaid
+graph TD
+    A[Start conditional ladder] --> B{Condition A?}
+    B -- Yes --> C[Run Block A]
+    B -- No --> D{Condition B?}
+    D -- Yes --> E[Run Block B]
+    D -- No --> F[Run Fallback Block]
+```
+
+---
+
+# 19. Comparison Table
 
 | Feature | `if-else` Statement | Ternary Expression |
 | :--- | :--- | :--- |
-| **Category** | Control Flow **Statement** | Inline **Expression** |
-| **Return Value** | Does not return a value natively; must perform assignments or side-effects inside. | Evaluates directly to a single value, which can be returned, assigned, or passed as an argument. |
-| **Usage Context** | Used to structure larger blocks of code, logical paths, and multi-line operations. | Used inside function calls, lambda expressions, list comprehensions, and inline returns. |
-| **Nesting Cap** | Highly readable when nested (using `elif`). | Syntactically allowed to nest, but can quickly reduce readability ("Ternary Spaghetti"). |
+| **Syntax** | Multi-line blocks | Single-line inline |
+| **Return** | Must use explicit `return` | Evaluates directly to value |
 
 ---
 
-### ⚡ Professional DSA Design Patterns with Ternaries
+# 20. Things to Remember
 
-#### Pattern 1: Elegant Recursive Base Cases
-When writing recursive algorithms (like Tree traversals or Binary Search), the base case typically returns a simple value. Using a ternary operator turns standard 4-line boilerplate into highly readable, elegant one-liners.
-
-*Standard recursive depth calculation for a Binary Tree:*
-```python
-# Verbose Approach
-def maxDepth(root):
-    if not root:
-        return 0
-    return 1 + max(maxDepth(root.left), maxDepth(root.right))
-```
-
-*Elite DSA Ternary Approach:*
-```python
-# Clean, readable, and highly professional
-def maxDepth(root):
-    return 0 if not root else 1 + max(maxDepth(root.left), maxDepth(root.right))
-```
-
-#### Pattern 2: Dynamic Programming (DP) State Transitions
-In DP tables (like the Knapsack problem, Longest Common Subsequence, or Grid Pathfinding), state updates often depend on a condition. An inline ternary prevents messy indentation.
-
-```python
-# LeetCode DP transition step
-dp[i][j] = dp[i-1][j-1] + 1 if text1[i-1] == text2[j-1] else max(dp[i-1][j], dp[i][j-1])
-```
-
-#### Pattern 3: Safe Attribute Evaluation via Short-Circuiting
-Python’s ternary operator evaluates expressions **lazily**. That means if the condition is `True`, only the `Expression_True` is evaluated; the other branch is completely ignored (and vice-versa). This prevents runtime errors such as `AttributeError` when dealing with `None` pointers in linked lists and trees.
-
-```python
-# Prevents throwing an error if node is None
-val = node.val if node else 0 
-```
-
-> [!WARNING]  
-> **Avoid Nesting Ternaries Excessively:** While `a if cond1 else b if cond2 else c` is valid Python, it is incredibly difficult to read and debug. Use standard `if-elif-else` ladders if you have more than two distinct branches, unless doing simple inline dynamic programming states.
-
----
-
-## 📝 Practice Labs & Solutions
-
-Here are detailed implementations for each practice question, showcasing optimal Python structures.
-
-### Q1. Greatest of Two Numbers
-*Accept two numbers and print the greatest between them.*
-
-```python
-def print_greatest(num1: float, num2: float) -> None:
-    # Standard conditional check
-    if num1 > num2:
-        print(f"{num1} is greater than {num2}")
-    elif num2 > num1:
-        print(f"{num2} is greater than {num1}")
-    else:
-        print("Both numbers are equal")
-
-# --- DSA Ternary Version (For inline comparison/assignment) ---
-def get_greatest(num1: float, num2: float) -> float:
-    return num1 if num1 >= num2 else num2
-```
-
----
-
-### Q2. Greeting by Gender
-*Accept gender from the user as a character and print the respective greeting.*
-
-```python
-def greet_user(gender_char: str) -> None:
-    # Canonicalize the input to handle lower/uppercase variations safely
-    gender = gender_char.strip().upper()
-    
-    if gender == 'M':
-        print("Good Morning Sir!")
-    elif gender == 'F':
-        print("Good Morning Ma'am!")
-    else:
-        print("Good Morning! (Welcome)")
-```
-
----
-
-### Q3. Even or Odd Checker
-*Accept an integer and check whether it is even or odd.*
-
-```python
-def check_even_odd(number: int) -> str:
-    # A number is even if it leaves a remainder of 0 when divided by 2
-    return "Even" if number % 2 == 0 else "Odd"
-
-# Test example
-print(f"Number 42 is: {check_even_odd(42)}")
-```
-
----
-
-### Q4. Voter Eligibility Checker
-*Accept name and age from the user. Check if the user is a valid voter or not (Voter age >= 18).*
-
-```python
-def verify_voter(name: str, age: int) -> None:
-    # Combine conditions safely using formatting
-    status = "a valid voter" if age >= 18 else "not a valid voter yet"
-    print(f"Hello {name}, you are {status}.")
-
-# Execution Example
-verify_voter("Shery", 19) # Output: Hello Shery, you are a valid voter.
-```
-
----
-
-### Q5. Leap Year Detection Algorithm
-*Accept a year and check if it is a leap year.*
-
-> [!NOTE]  
-> **Leap Year Logic:**
-> 1. If a year is evenly divisible by 4, it *might* be a leap year.
-> 2. Except if it is divisible by 100, then it is *not* a leap year...
-> 3. ...Unless it is also divisible by 400. Then it *is* a leap year.
-
-```python
-def is_leap_year(year: int) -> bool:
-    # Combining conditions using logical operators
-    if (year % 4 == 0 and year % 100 != 0) or (year % 400 == 0):
-        return True
-    return False
-
-# Professional Ternary alternative for DSA
-def is_leap_year_ternary(year: int) -> bool:
-    return True if (year % 400 == 0) else (False if (year % 100 == 0) else (year % 4 == 0))
-```
-
----
-
-### Q6. Celsius Temperature Classifier
-*Take Celsius temperature input and categorize it.*
-
-* **Below 0°C** $\rightarrow$ "Freezing Cold"
-* **0°C to 10°C** $\rightarrow$ "Very Cold"
-* **10°C to 20°C** $\rightarrow$ "Cold"
-* **20°C to 30°C** $\rightarrow$ "Pleasant"
-* **30°C to 40°C** $\rightarrow$ "Hot"
-* **Above 40°C** $\rightarrow$ "Very Hot"
-
-```python
-def classify_temperature(celsius: float) -> str:
-    # if-elif ladder ensures exclusive ranges are evaluated in order
-    if celsius < 0:
-        return "Freezing Cold"
-    elif celsius <= 10:
-        return "Very Cold"
-    elif celsius <= 20:
-        return "Cold"
-    elif celsius <= 30:
-        return "Pleasant"
-    elif celsius <= 40:
-        return "Hot"
-    else:
-        return "Very Hot"
-
-# Example Run
-print(f"At 25°C, the weather is: {classify_temperature(25)}")
-```
-
----
-*Keep practicing and building robust logic!*  
-⭐ **Crafted with care for Python Learners & DSA Aspirants.**
+> [!IMPORTANT]
+> **Key takeaways on Control Flow:**
+> 1. **Do not nest ternaries**: Nesting ternaries reduces readability.
+> 2. **Leverage lazy evaluation**: Put checks like `node is not None` on the left of conditional expressions to avoid crash errors.

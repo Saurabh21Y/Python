@@ -1,284 +1,312 @@
-# Chapter 10.4: Dictionaries in Python
-
-> **Topic Index:** 10.4 | **Prerequisites:** Introduction to Data Structures & Chapter 10.1 (Lists)  
-> **Original Concept Attribution:** Sheryians Coding School (Enhanced for DSA & Professional Development)
+# Python OOP: Dictionaries - Hash Table Architecture & Data Mapping
 
 ---
 
-## 📌 Introduction to Dictionaries
+# 1. Definition
 
-A **Dictionary** (often called a `dict` in Python) is one of the most powerful and flexible built-in data structures. Unlike lists and tuples, which are ordered sequences indexed by a range of numbers, dictionaries are indexed by **keys**, which must be unique and hashable (immutable). 
+## Dictionary Data Type
+A **Dictionary** (`dict` in Python) is a mutable, insertion-ordered (since Python 3.7) collection of associative key-value pairs.
+* **Associative Keys**: Dictionaries map unique, immutable (hashable) keys to arbitrary value objects on the heap.
+* **Key Uniqueness**: A dictionary cannot contain duplicate keys. Re-assigning a value to an existing key overwrites the old value.
+* **Heterogeneous Values**: Values can be of any data type, mutable or immutable (including lists, dictionaries, or custom objects).
 
-Think of a dictionary as an associative container or a hash map. It stores data in **key-value pairs**, allowing you to look up, add, update, or remove data with extreme speed using custom labels instead of numerical positions.
+```mermaid
+graph TD
+    D[Dictionary Characteristics]
+    D --> Mut[Mutable: Can add/remove pairs]
+    D --> KeyUniq[Key Uniqueness: No duplicate keys]
+    D --> HashKey[Hashable Keys: Immutable keys only]
+    D --> HetVal[Heterogeneous Values: Any data type allowed]
+```
 
 ---
 
-## ⚡ The "Powers" (Characteristics) of a Dictionary
+# 2. Why Do We Need It?
 
-To master dictionaries, you need to understand their four core characteristics:
+### The Problem With Positional Lookups
+If you store database records in a list, retrieving a specific record requires knowing its numeric index or performing a linear search.
 
-1. **Mutable (Changeable):** The dictionary container is mutable. You can add new key-value pairs, update existing values, or delete keys. However, the **keys themselves must be immutable (hashable)**.
-2. **Key Uniqueness & Value Duplication:** 
-   - **Keys must be unique:** A dictionary cannot contain duplicate keys. If you assign a value to an existing key, the new value will overwrite the old one.
-   - **Values can be duplicates:** Multiple keys can point to the same value without any issue.
-3. **Insertion Ordered (Python 3.7+):** Dictionaries preserve the order in which key-value pairs are inserted. If you iterate through a dictionary, the elements will appear in the order you added them.
-4. **Heterogeneous Nature:**
-   - **Keys:** Can be of any hashable (immutable) type (e.g., `str`, `int`, `float`, `bool`, `tuple` containing only hashable elements).
-   - **Values:** Can be of **any** data type, mutable or immutable, including lists, other dictionaries, sets, custom objects, or functions.
-
-### 💻 Code Demonstration of Dictionary Characteristics
 ```python
-# 1. Creation and Heterogeneous Keys/Values
-student_records = {
-    "name": "Arjun",
+# Lookup in a list of tuples
+users = [(101, "Aman"), (102, "Rohit")]
+# To find Rohit, you must scan each tuple sequentially
+```
+
+#### Issues:
+1. **Inefficient Search**: Scanning a list takes $\mathcal{O}(N)$ time.
+2. **Brittle Indexing**: If elements are inserted or deleted, index positions shift, corrupting hardcoded lookups.
+3. **No Semantic Mapping**: Numeric indexes do not provide semantic meaning (e.g., accessing `user[3]` does not clarify what property is stored at index 3).
+
+---
+
+# 3. Real-Life Analogies
+
+### Analogy: The Student Registry
+Imagine a school registrar filing student dossiers:
+* Instead of filing dossiers by their physical queue order (List), each dossier is filed under the student's unique **Roll Number** (Key).
+* To find a student's file, you don't read every dossier. You check the Roll Number label, open the cabinet drawer directly (Hash Table Lookup), and retrieve their dossier (Value).
+
+---
+
+# 4. Syntax
+
+```python
+# 1. Initialization
+student = {
+    "name": "Saurabh",
     "age": 21,
-    "skills": ["Python", "SQL"],  # List as value (mutable is fine)
-    (1, 2): "Coordinate Point",   # Tuple as key (immutable is fine)
+    "courses": ["Python", "SQL"]
 }
-print("Dictionary:", student_records)
 
-# 2. Key Uniqueness (Overwriting old values)
-grades = {"Physics": 85, "Math": 90, "Physics": 95}
-print("Unique keys check:", grades)  # Output: {'Physics': 95, 'Math': 90}
+# 2. Safe Reading (get)
+student_name = student.get("name")
 
-# 3. Invalid mutable key check
-try:
-    invalid_dict = {["list_key"]: "value"}  # Attempting to use a list as a key
-except TypeError as e:
-    print(f"Error: {e}")  # Output: unhashable type: 'list'
+# 3. Creating & Updating
+student["grade"] = "A"
+```
+* **Explanation**: Demonstrates initializing a dictionary, accessing values safely, and inserting a new key-value pair.
+* **Expected Output**: Compiles and executes. `student` includes `"grade": "A"`.
+* **Memory Explanation**: Calculates hash for keys and updates the dictionary hash table layout.
+* **Time Complexity**: $\mathcal{O}(1)$ average for operations.
+* **Space Complexity**: $\mathcal{O}(N)$ where $N$ is pair count.
+* **Common Mistakes**: Accessing missing keys using bracket notation (e.g., `student["email"]` raises a `KeyError`).
+* **Best Practices**: Use `.get()` for safe read operations.
+
+---
+
+# 5. Syntax Breakdown
+
+Let's dissect standard dictionary methods:
+
+* **`.get(key, default)`**: Returns value for `key`. If missing, returns `default` (or `None`) safely.
+* **`.keys()`**: Returns a dynamic view object of all dictionary keys.
+* **`.values()`**: Returns a dynamic view object of all dictionary values.
+* **`.items()`**: Returns a dynamic view object of key-value tuples.
+* **`.update(other)`**: Updates dictionary with key-value pairs from another dictionary.
+
+---
+
+# 6. Memory Diagram
+
+When declaring `d = {"a": 10}`:
+
+```
+HEAP (Hash Map Structure)
+=========================================================
+| Key Hash Value | Key Pointer   | Value Pointer        |
+=========================================================
+|   hash("a")    | 0x100A ("a")  | 0x500X (int: 10)     |
+=========================================================
+```
+
+* **Explanation**: The key hash maps directly to a storage bucket containing pointers to both key and value objects on the heap.
+
+---
+
+# 7. Internal Working (Behind the Scenes)
+
+## Hash Table Implementation
+Python dictionaries use highly optimized hash tables.
+1. When key-value pair is inserted, Python hashes the key using `hash(key)`.
+2. It uses this hash value to index into a sparse array.
+3. **Python 3.6+ Optimization**: Python uses a split table architecture. It stores keys and values in a dense array (keeping insertion order) and maintains a separate sparse index array containing index positions in the dense array. This reduces dictionary memory usage by up to 25%.
+
+---
+
+# 8. Rules
+
+### Dictionary Rules
+1. **Key Hashability**: Dictionary keys must be immutable and hashable (e.g., strings, numbers, tuples with only hashable elements). Lists, sets, and dicts cannot be keys.
+2. **Key Uniqueness**: If you assign a value to an existing key, the new value overwrites the old one.
+3. **No Slicing**: Dictionaries are mapped structures and do not support slicing.
+
+---
+
+# 9. Naming Conventions (PEP 8)
+
+* Use singular nouns followed by mapping terms (e.g., `user_map`, `student_lookup`).
+* Use snake_case.
+
+| Variable Name | Bad Example | Good Example | Industry Standard |
+| :--- | :--- | :--- | :--- |
+| Dictionary | `dictInstance` | `student_database` | `student_profile_map` |
+
+---
+
+# 10. Common Mistakes & Bugs
+
+### Mistake 1: Bracket access on missing keys
+```python
+# BUGGY CODE
+grades = {"math": 90}
+print(grades["science"])  # Raises KeyError!
+```
+* **Expected Output**: `KeyError: 'science'`
+* **How to avoid**: Use `grades.get("science", 0)` to provide a safe fallback.
+
+---
+
+### Mistake 2: Mutating keys during iteration
+```python
+# BUGGY CODE
+d = {"a": 1, "b": 2}
+for key in d:
+    if d[key] == 2:
+        del d[key]  # Raises RuntimeError!
+```
+* **Why it happens**: Modifying a dictionary's size under active iteration corrupts the iterator.
+* **How to avoid**: Iterate over a copy of keys: `for key in list(d.keys()):`.
+
+---
+
+# 11. Best Practices & Pythonic Code
+
+* **Use Dictionary Union Operators** (introduced in Python 3.9) to merge dictionaries cleanly.
+```python
+# Pythonic Merge
+merged_dict = dict1 | dict2
 ```
 
 ---
 
-## 🧠 Behind the Scenes: Hash Maps in Python
+# 12. Interview Questions
 
-Under the hood, Python dictionaries are implemented using highly optimized **Hash Tables**:
-
-* **O(1) Operations:** Lookup, insertion, and deletion operations run in **constant average time ($O(1)$)**, making dictionaries incredibly fast for large datasets.
-* **Hashability Requirement for Keys:** To locate a key-value pair instantly, Python computes a hash of the key. Since mutable objects (like lists or dicts) can change their values, their hash would change, which would lose their location in the hash table. Thus, only immutable types are hashable and allowed as keys.
+### Q1. Why must dictionary keys be immutable?
+* **Answer**: Dictionaries use hash tables to locate keys in $\mathcal{O}(1)$ average time. If keys were mutable (like lists), their contents could change, which would alter their hash value. A modified hash value means the key would map to a different bucket, making it impossible for Python to locate the value in the table.
 
 ---
 
-## 📝 Dictionary Syntax & CRUD Operations
-
-The keys in a dictionary behave like custom indexes. We can perform all standard CRUD (Create, Read, Update, Delete) operations. Note that we can modify the **values**, but we cannot mutate the **keys** themselves once created (you must delete the key and insert the new key-value pair).
-
-### 1️⃣ Create (Initialization)
-```python
-# Empty dictionary
-empty_dict = {}         # Recommended
-empty_dict_alt = dict()  # Using constructor
-
-# Pre-populated dictionary
-user = {
-    "id": 101,
-    "username": "coder_xyz",
-    "is_active": True
-}
-```
-
-### 2️⃣ Read (Accessing Values)
-```python
-# Method A: Bracket Notation (Raises KeyError if key not found)
-try:
-    print(user["username"])
-    print(user["email"])  # Key does not exist
-except KeyError as e:
-    print(f"KeyError: Key {e} not found")
-
-# Method B: .get() Method (Recommended - returns None or default value if key not found)
-print(user.get("username"))
-print(user.get("email"))           # Output: None (No error raised!)
-print(user.get("email", "N/A"))    # Output: N/A (Custom default value)
-```
-
-### 3️⃣ Update & Create (Modifying/Adding Pairs)
-```python
-# Modifying an existing key-value pair
-user["is_active"] = False
-
-# Adding a new key-value pair
-user["email"] = "coder@example.com"
-
-print(user)
-```
-
-### 4️⃣ Delete (Removing Pairs)
-```python
-# Method A: del statement (Raises KeyError if key not found)
-del user["is_active"]
-
-# Method B: .pop() Method (Removes key and returns its value; accepts default fallback)
-email = user.pop("email", "Not Found")
-print(f"Popped Email: {email}")
-
-# Method C: .popitem() (Removes and returns the last inserted key-value pair as a tuple)
-last_pair = user.popitem()
-print(f"Popped Last Pair: {last_pair}")
-
-# Method D: .clear() (Empties the dictionary completely)
-user.clear()
-print("After clear:", user)  # Output: {}
-```
+### Q2. What is the difference between `.pop()` and `del` for deleting dictionary keys?
+* **Answer**: 
+  * `del d[key]` is a statement that removes the key-value pair. It raises a `KeyError` if the key is not found and does not return the deleted value.
+  * `d.pop(key, default)` is a method that removes the key and returns its associated value. If the key is not found, it returns the `default` fallback without raising an error.
 
 ---
 
-## 🔄 Dictionary Traversing (Iteration)
-
-You can iterate through a dictionary in several ways. By default, iterating directly over a dictionary yields its **keys**.
-
+### Q3. Tricky Output Question
+**What is the output of the following statement?**
 ```python
-inventory = {"Apples": 50, "Bananas": 30, "Cherries": 75}
-
-# 1. Default Loop: Iterates over keys
-print("Keys (default loop):")
-for item in inventory:
-    print(f"Key: {item} | Value: {inventory[item]}")
-
-# 2. Explicit Key Iteration (.keys())
-print("\nExplicit Keys:")
-for key in inventory.keys():
-    print(key)
-
-# 3. Explicit Value Iteration (.values())
-print("\nExplicit Values:")
-for value in inventory.values():
-    print(value)
-
-# 4. Key-Value Pair Iteration (.items() - Recommended)
-print("\nKey-Value Pairs:")
-for key, value in inventory.items():
-    print(f"{key} -> {value}")
+d = {}
+d[True] = "Yes"
+d[1] = "No"
+print(d)
 ```
+* **Expected Output**: `{True: 'No'}`
+* **Explanation**: In Python, `True == 1` evaluates to `True`, and their hash values are identical (`hash(True) == hash(1)`). Therefore, `d[1]` targets the exact same hash bucket as `d[True]`, overwriting the value to `"No"`.
 
 ---
 
-## 🛠️ Essential Dictionary Methods
+# 13. Exam Points
 
-Python provides a set of built-in methods to perform operations efficiently. 
-
-> [!TIP]
-> You can run `help(dict)` in the Python interactive shell to view a comprehensive list of all dictionary methods and documentation.
-
-| Method | Description | Example |
-| :--- | :--- | :--- |
-| `.get(key, default)` | Returns the value of key. If key doesn't exist, returns `default` (or `None`). | `d.get("name", "Guest")` |
-| `.keys()` | Returns a dynamic view object of all dictionary keys. | `d.keys()` |
-| `.values()` | Returns a dynamic view object of all dictionary values. | `d.values()` |
-| `.items()` | Returns a dynamic view object of all key-value tuples. | `d.items()` |
-| `.update(other_dict)` | Updates the dictionary with key-value pairs from another dictionary or iterable. | `d.update({"age": 22})` |
-| `.setdefault(key, default)`| Returns the value if key is present; otherwise inserts key with `default` and returns it. | `d.setdefault("country", "India")` |
-| `.fromkeys(seq, value)` | Class method that creates a new dictionary with keys from sequence and values set to `value`. | `dict.fromkeys(["a", "b"], 0)` |
-| `.pop(key, default)` | Removes and returns the value of the specified key, or `default` if key doesn't exist. | `d.pop("age", None)` |
-| `.popitem()` | Removes and returns the last inserted `(key, value)` pair. | `d.popitem()` |
-| `.clear()` | Removes all elements from the dictionary. | `d.clear()` |
+* **`dict()`**: Constructor to build dictionary objects.
+* **`popitem()`**: Removes and returns the last inserted key-value pair as a tuple.
+* **`setdefault()`**: Returns the value of a key if present; otherwise inserts the key with a default value.
 
 ---
 
-## 📝 Practice Labs & Solutions
+# 14. Real-World Examples
 
-Here are standard interview and practical programming problems involving dictionaries, implemented with professional type hinting, docstrings, and clean explanations.
-
-### Q1. Merge Two Python Dictionaries
-*Write a function that merges two dictionaries. If there are overlapping keys, the values of the second dictionary should overwrite those of the first. Provide both the classic method and the modern Python 3.9+ method.*
-
+## Example 1: Creating a Frequency Map (DSA Pattern)
 ```python
-from typing import Any
+def get_frequencies(word: str) -> dict[str, int]:
+    freq_map = {}
+    for char in word:
+        # Use get to initialize counts to 0
+        freq_map[char] = freq_map.get(char, 0) + 1
+    return freq_map
 
-def merge_dictionaries_classic(dict1: dict[Any, Any], dict2: dict[Any, Any]) -> dict[Any, Any]:
-    """
-    Merges two dictionaries using the .update() method.
-    Returns a new dictionary without mutating the inputs.
-    """
-    merged = dict1.copy()
-    merged.update(dict2)
-    return merged
-
-def merge_dictionaries_modern(dict1: dict[Any, Any], dict2: dict[Any, Any]) -> dict[Any, Any]:
-    """
-    Merges two dictionaries using the Union operator (|) introduced in Python 3.9.
-    """
-    return dict1 | dict2
-
-# Test Run
-d1 = {"a": 1, "b": 2}
-d2 = {"b": 99, "c": 4}
-
-print("Merged (Classic):", merge_dictionaries_classic(d1, d2))  # Output: {'a': 1, 'b': 99, 'c': 4}
-print("Merged (Modern):", merge_dictionaries_modern(d1, d2))   # Output: {'a': 1, 'b': 99, 'c': 4}
+print(get_frequencies("mississippi"))
 ```
+* **Explanation**: Builds a character frequency dictionary.
+* **Expected Output**: `{'m': 1, 'i': 4, 's': 4, 'p': 2}`
+* **Time Complexity**: $\mathcal{O}(N)$
+* **Space Complexity**: $\mathcal{O}(U)$ where $U$ is unique characters.
 
 ---
 
-### Q2. Sum All Values in a Dictionary
-*Write a function that calculates the sum of all numerical values in a dictionary.*
-
+## Example 2: Combining Inventories
 ```python
-from typing import Any
-
-def sum_dict_values(data: dict[Any, float | int]) -> float | int:
-    """
-    Sums all numeric values stored in a dictionary.
-    Handles empty dictionaries by returning 0.
-    """
-    return sum(data.values())
-
-# Test Run
-salaries = {"Alice": 5000, "Bob": 6000, "Charlie": 4500}
-print("Total Salaries:", sum_dict_values(salaries))  # Output: 15500
-print("Empty sum:", sum_dict_values({}))             # Output: 0
-```
-
----
-
-### Q3. Count Frequency of Elements (Frequency Map)
-*Write a function that accepts an iterable (like a list or a string) and returns a frequency dictionary containing counts of each unique element.*
-
-```python
-from typing import Iterable, Hashable
-
-def calculate_frequencies(elements: Iterable[Hashable]) -> dict[Hashable, int]:
-    """
-    Calculates the frequency of each element in an iterable.
-    Returns a dictionary mapping elements to their occurrence count.
-    """
-    frequency_map = {}
-    for element in elements:
-        # If element is in map, increment; else initialize to 0 and add 1
-        frequency_map[element] = frequency_map.get(element, 0) + 1
-    return frequency_map
-
-# Alternative: Using Python's built-in collections module
-# from collections import Counter
-# print(Counter("abracadabra"))
-
-# Test Run
-word = "mississippi"
-print("Frequencies:", calculate_frequencies(word))
-# Output: {'m': 1, 'i': 4, 's': 4, 'p': 2}
-```
-
----
-
-### Q4. Combine Dictionaries by Adding Values for Common Keys
-*Write a function that merges two dictionaries. If a key is present in both, their numeric values should be summed up. If a key is exclusive to one dictionary, it should be kept as-is.*
-
-```python
-from typing import Any
-
-def combine_dict_sums(dict1: dict[Any, float | int], dict2: dict[Any, float | int]) -> dict[Any, float | int]:
-    """
-    Combines two dictionaries by adding values for common keys.
-    """
-    combined = dict1.copy()
-    for key, value in dict2.items():
+def combine_inventories(inv1: dict[str, int], inv2: dict[str, int]) -> dict[str, int]:
+    combined = inv1.copy()
+    for key, value in inv2.items():
         combined[key] = combined.get(key, 0) + value
     return combined
 
-# Test Run
-shop1 = {"Apples": 10, "Bananas": 20, "Oranges": 15}
-shop2 = {"Bananas": 15, "Oranges": 10, "Grapes": 30}
-
-print("Combined Inventory:", combine_dict_sums(shop1, shop2))
-# Output: {'Apples': 10, 'Bananas': 35, 'Oranges': 25, 'Grapes': 30}
+shop1 = {"Apples": 10, "Bananas": 20}
+shop2 = {"Bananas": 15, "Oranges": 30}
+print(combine_inventories(shop1, shop2))
 ```
+* **Explanation**: Merges inventories by summing values of common keys.
+* **Expected Output**: `{'Apples': 10, 'Bananas': 35, 'Oranges': 30}`
+* **Time Complexity**: $\mathcal{O}(N + M)$
+
+---
+
+# 15. Mini Practice
+
+### Easy
+Create a dictionary containing names and scores. Retrieve a score using `.get()` with a default fallback of `0`.
+
+### Medium
+Merge two dictionaries using both the classic `.update()` method and the Python 3.9+ union operator `|`.
+
+### Hard
+Write a function that calculates the sum of all numerical values stored inside a nested dictionary structure.
+
+---
+
+# 16. Summary Table
+
+| Method Syntax | Return Value | Modifies Original | Safe If Key Missing |
+| :--- | :--- | :--- | :--- |
+| `d.get(k, default)`| Value of key | No | Yes (returns default) |
+| `d.pop(k, default)`| Value of key | Yes | Yes (returns default) |
+| `d.popitem()` | Last (key, value) tuple | Yes | No (`KeyError` if empty) |
+| `d.clear()` | `None` | Yes | Yes |
+
+---
+
+# 17. Cheat Sheet
+
+```python
+# Initialize
+d = {}
+
+# Merge
+merged = d1 | d2
+
+# Iterate pairs
+for k, v in d.items():
+    pass
+```
+
+---
+
+# 18. Flow Diagram
+
+```mermaid
+graph TD
+    A[Lookup key in dictionary] --> B[Compute key hash]
+    B --> C[Locate index bucket]
+    C --> D{Does key match exactly?}
+    D -- Yes --> E[Return associated value]
+    D -- No --> F[Check collision open addresses]
+```
+
+---
+
+# 19. Comparison Table
+
+| Feature | Dictionary | List |
+| :--- | :--- | :--- |
+| **Access Key** | Arbitrary Hashable Key | Integer Index |
+| **Lookup Complexity**| $\mathcal{O}(1)$ average | $\mathcal{O}(N)$ linear scan |
+
+---
+
+# 20. Things to Remember
+
+> [!IMPORTANT]
+> **Key takeaways on Dictionaries:**
+> 1. **Use get for safe reads**: Bracket read access raises `KeyError` on missing keys.
+> 2. **Never change size during loop**: Mutating dictionary elements under active loops triggers `RuntimeError`.

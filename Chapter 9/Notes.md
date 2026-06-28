@@ -1,322 +1,323 @@
-# Chapter 09: Functions & Modular Programming in Python
-
-> **Topic Index:** 09 | **Prerequisites:** Loops & Iterative Control Flow  
-> **Original Concept Attribution:** Sheryians Coding School (Enhanced for DSA & Professional Development)
+# Python OOP: Functions, Scope, & Modular Programming
 
 ---
 
-## 📌 Introduction to Functions
+# 1. Definition
 
-In programming, we often need to execute a block of code multiple times with different inputs. Copying and pasting the same code violates the **DRY (Don't Repeat Yourself)** principle, making the program bloated, hard to debug, and difficult to maintain.
+## Function
+A **Function** is a self-contained block of organized, reusable code designed to perform a single, related action. Functions provide better modularity for your application and high code reuse.
 
-A **Function** is a self-contained block of reusable code designed to perform a specific task. By grouping code into functions, we make our programs modular, readable, and reusable.
+## Python Classification
+Functions are categorized into two types:
+1. **Built-in Functions**: Pre-defined functions available in Python's standard library (e.g., `print()`, `len()`, `sum()`).
+2. **User-Defined Functions (UDFs)**: Custom functions created by developers using the `def` keyword.
 
-### 🔄 Built-in vs. User-Defined Functions
-
-Python categorizes functions into two main types:
-
-1. **Built-in Functions:** Pre-defined functions available in Python's standard library.
-   * Examples: `print()`, `input()`, `len()`, `range()`, `type()`, `sum()`, `max()`.
-2. **User-Defined Functions (UDFs):** Functions created by developers to perform custom tasks.
-   * Created using the `def` keyword.
-
----
-
-## 📝 Syntax & Anatomy of a Python Function
-
-To define and execute a function in Python, we use a specific syntax structure:
-
-```python
-# 1. Function Definition
-def function_name(parameter1, parameter2):
-    """
-    Optional: Docstring explaining what the function does.
-    """
-    # Function Body (indented)
-    result = parameter1 + parameter2
-    return result # Optional: Returns a value to the caller
-
-# 2. Function Call (Execution)
-output = function_name(value1, value2)
-```
-
-### 🔍 Key Components:
-* **`def` Keyword:** Signals the start of a function definition.
-* **Function Name:** A descriptive name using `snake_case` naming conventions.
-* **Parameters (inside parenthesis):** Placeholders for data that the function accepts.
-* **Colon (`:`):** Marks the end of the signature and the start of the indented block.
-* **Docstring:** A multi-line string used for documenting function behavior.
-* **Function Body:** The actual logic that runs when the function is called.
-* **`return` Statement:** Sends a result back to the caller. If omitted, Python returns `None` by default.
-
----
-
-## ⚙️ Parameters vs. Arguments
-
-Though often used interchangeably, **Parameters** and **Arguments** refer to distinct concepts:
-
-| Concept | Definition | Where Defined | Analogy |
-| :--- | :--- | :--- | :--- |
-| **Parameters** | Variables listed inside the parentheses of a function's definition. | Function signature (`def`) | Blank placeholders / variables. |
-| **Arguments** | The actual values passed to the function when it is called. | Function invocation (`name()`) | Real data assigned to those variables. |
-
-### 💻 Code Illustration
-
-```python
-# 'name' is the PARAMETER (acting as a variable)
-def greet(name):
-    print(f"Hello, {name}!")
-
-# 'Alice' and 'Bob' are the ARGUMENTS (the actual values assigned to 'name')
-greet("Alice") # Output: Hello, Alice!
-greet("Bob")   # Output: Hello, Bob!
-```
-
-> [!NOTE]  
-> If a function is defined with a certain number of parameters, you must provide the exact same number of arguments when calling it, unless default values are specified. Otherwise, Python raises a `TypeError`.
-
----
-
-## 🔀 Types of Arguments
-
-Python provides flexible ways to pass arguments to parameters. The three primary types are:
-
-### 1️⃣ Positional Arguments
-By default, Python matches arguments to parameters based on their **position** (order). The first parameter captures the first argument, the second parameter captures the second argument, and so on.
-
-```python
-def display_info(name, age):
-    print(f"Name: {name}, Age: {age}")
-
-# Position matters: 'Alice' maps to 'name', 25 maps to 'age'
-display_info("Alice", 25) # Output: Name: Alice, Age: 25
-
-# Swapping the arguments alters the meaning
-display_info(25, "Alice") # Output: Name: 25, Age: Alice
-```
-
-### 2️⃣ Default Arguments
-You can assign default values to parameters during the function definition. If the caller does not pass an argument for that parameter, the default value is used automatically.
-
-```python
-# 'country' has a default value of "India"
-def greet_user(name, country="India"):
-    print(f"{name} is from {country}")
-
-# Case A: Argument is omitted -> default is used
-greet_user("Saurabh") # Output: Saurabh is from India
-
-# Case B: Argument is provided -> default is overridden
-greet_user("John", "USA") # Output: John is from USA
-```
-
-> [!WARNING]  
-> **Syntax Rule:** In a function definition, all **positional (non-default) parameters must be placed before default parameters**.
-> * `def func(a, b=10):` $\rightarrow$ **Valid**
-> * `def func(a=10, b):` $\rightarrow$ **Invalid (Raises SyntaxError: non-default argument follows default argument)**
-
-### 3️⃣ Keyword Arguments
-Keyword arguments allow you to pass values by explicitly naming the parameters, using the `parameter_name = value` format. In this case, the **order of arguments does not matter**.
-
-```python
-def describe_pet(animal_type, pet_name):
-    print(f"I have a {animal_type} named {pet_name}.")
-
-# Passing arguments by name, allowing arbitrary ordering
-describe_pet(pet_name="Bruno", animal_type="Dog") 
-# Output: I have a Dog named Bruno.
+```mermaid
+graph TD
+    Func[Functions]
+    Func --> BuiltIn[Built-in: print, len, type]
+    Func --> UDF[User-Defined: def keyword]
 ```
 
 ---
 
-## ⚡ Professional DSA Design Patterns & Best Practices
+# 2. Why Do We Need It?
 
-### Pattern 1: Type Hinting & Self-Documenting Code
-In professional production systems, always specify input parameter types and the expected return type. This prevents type errors, helps IDE autocomplete, and clarifies code intent.
+### The Problem With Monolithic Code
+Without functions, code is monolithic and repetitive. If a task needs to be performed in three different files, the logic must be copied and pasted.
 
 ```python
+# Duplicate calculations
+area1 = 10 * 20
+# ... other statements
+area2 = 15 * 30
+```
+
+#### Issues:
+1. **DRY Principle Violation**: "Don't Repeat Yourself" (DRY) is violated.
+2. **Hard to Debug**: Fixing a bug in calculation logic requires tracking down and updating every duplicate block.
+3. **No Namespace Isolation**: Variables declared for temporary calculations leak into the global namespace, causing clashes.
+
+---
+
+# 3. Real-Life Analogies
+
+### Analogy: The Restaurant Kitchen
+Think of a function as a chef specializing in making soup:
+* **The Calling Script**: The waiter places an order (invokes the function) and hands the chef the ingredients (arguments).
+* **The Function (Chef)**: The chef goes to a private kitchen counter (local scope/namespace), processes the ingredients (function body), and prepares the soup.
+* **The Return Statement**: The chef puts the soup on a tray and sends it back to the waiter (returns the result). The waiter can now serve it (assign to a variable) or show it to others (print it).
+
+---
+
+# 4. Syntax
+
+```python
+# 1. Function definition with Type Hints
 def calculate_area(length: float, width: float) -> float:
-    """
-    Computes the area of a rectangle.
-    
-    Args:
-        length (float): The length of the rectangle.
-        width (float): The width of the rectangle.
-        
-    Returns:
-        float: The calculated area.
-    """
+    """Calculates the area of a rectangle."""
     return length * width
+
+# 2. Invocation (Calling)
+result = calculate_area(10.5, 20.0)
+```
+* **Explanation**: Defines a function with type hints and a docstring, then calls it with arguments.
+* **Expected Output**: Compiles and executes. `result` stores `210.0`.
+* **Memory Explanation**: Calling the function pushes a new stack frame containing local variables `length` and `width`.
+* **Time Complexity**: $\mathcal{O}(1)$
+* **Space Complexity**: $\mathcal{O}(1)$
+* **Common Mistakes**: Putting default parameters before positional parameters.
+* **Best Practices**: Use type hints to clarify input and output structures.
+
+---
+
+# 5. Syntax Breakdown
+
+Let's dissect parameter type categories:
+
+* **Positional Arguments**: Matched to parameters by position.
+* **Keyword Arguments**: Matched by explicitly naming the parameter (`width=20.0`).
+* **Default Arguments**: Pre-assigned parameters used if values are omitted (`country="India"`).
+
+---
+
+# 6. Memory Diagram
+
+When calling `func(x)` with local namespace isolation:
+
+```
+GLOBAL FRAME (Namespace)                   LOCAL FRAME (func)
+======================                     =========================
+| Name | Reference   |                     | Name  | Reference     |
+======================                     =========================
+| val  |   0x100A    | ------------------> | arg   |   0x100A      |
+======================                     =========================
 ```
 
-### Pattern 2: Return Values vs. Direct Printing
-Avoid using `print()` inside core logical functions. Instead, **`return`** the result. This keeps your functions reusable for calculations, testing, and other workflows.
+* **Explanation**: Local variables inside function calls live on the execution stack frame and are destroyed when the function returns.
 
-```python
-# 🚫 POOR PRACTICE (Hard to reuse/test result)
-def add_bad(a, b):
-    print(a + b)
+---
 
-# 👍 GOOD PRACTICE (Result can be saved, formatted, or used in other operations)
-def add_good(a: int, b: int) -> int:
-    return a + b
-```
+# 7. Internal Working (Behind the Scenes)
 
-### Pattern 3: Handling Multiple Returns (Tuples)
-A function in Python can return multiple values separated by commas. Python automatically packages them into a single **tuple**, which can be easily unpacked by the caller.
+## Scope Resolution (LEGB Rule)
+When variable lookup occurs inside a function, Python checks scopes in a strict hierarchy:
+1. **L (Local)**: Variables declared inside the function.
+2. **E (Enclosing)**: Variables in enclosing function namespaces (for nested functions).
+3. **G (Global)**: Variables declared at the module level.
+4. **B (Built-in)**: Built-in names (like `len`, `int`).
 
-```python
-def get_min_max(numbers: list[int]) -> tuple[int, int]:
-    """Returns both the minimum and maximum value in a list."""
-    return min(numbers), max(numbers)
-
-# Unpacking the returned tuple
-minimum, maximum = get_min_max([23, 5, 89, 44, 12])
-print(f"Min: {minimum}, Max: {maximum}")
+```mermaid
+graph TD
+    A[Start Lookup] --> B{In Local scope?}
+    B -- Yes --> C[Return Value]
+    B -- No --> D{In Enclosing scope?}
+    D -- Yes --> C
+    D -- No --> E{In Global scope?}
+    E -- Yes --> C
+    E -- No --> F{In Built-in scope?}
+    F -- Yes --> C
+    F -- No --> G[Raise NameError]
 ```
 
 ---
 
-## 📝 Practice Labs & Solutions
+# 8. Rules
 
-Here are standard problems implemented with professional type hinting, documentation, and clean logic.
+### Function Rules
+1. **Default Argument Positioning**: Default parameters **must follow** non-default parameters.
+   * `def func(a, b=10):` $\rightarrow$ **Valid**
+   * `def func(a=10, b):` $\rightarrow$ **Invalid**
+2. **Mutable Default Parameter Trap**: Never use mutable objects (like empty lists `[]`) as default argument values; they are shared across all calls.
+3. **Scope Shadows**: Local variables shadow global variables with the same name.
 
-### Q1. Dynamic Greeting Card Creator
-*Write a function that takes a person's name and an optional event name (defaulting to "Birthday"). It should return a formatted greeting.*
+---
 
+# 9. Naming Conventions (PEP 8)
+
+* Use snake_case for function names.
+* Use descriptive verbs (e.g., `get_user_profile`, `calculate_sum`).
+
+| Type | Bad Example | Good Example | Industry Standard |
+| :--- | :--- | :--- | :--- |
+| Function | `CalculateArea()` | `calculate_area()` | `process_invoice_payment()` |
+
+---
+
+# 10. Common Mistakes & Bugs
+
+### Mistake 1: The Mutable Default Argument Bug
 ```python
-def create_greeting(name: str, event: str = "Birthday") -> str:
-    """Generates a personalized celebration greeting card string."""
-    return f"Dear {name}, Wishing you a fantastic and joyful {event}! Best regards."
+# BUGGY CODE
+def append_to(element, target=[]):
+    target.append(element)
+    return target
 
-# Test Cases
-print(create_greeting("Saurabh"))
-# Output: Dear Saurabh, Wishing you a fantastic and joyful Birthday! Best regards.
-
-print(create_greeting("Rohit", "Graduation"))
-# Output: Dear Rohit, Wishing you a fantastic and joyful Graduation! Best regards.
+print(append_to(1))  # [1]
+print(append_to(2))  # [1, 2] (Shared reference!)
+```
+* **Why it happens**: Default arguments are evaluated once when the function is defined, not when it is called.
+* **How to avoid**: Use `None` as default:
+```python
+def append_to(element, target=None):
+    if target is None:
+        target = []
+    target.append(element)
+    return target
 ```
 
 ---
 
-### Q2. Positional & Keyword Argument Validator
-*Write a function representing a user profile builder that accepts username, email (required), role (default "Guest"), and status (default "Active"). Demonstrate how to call it using positional, default, and keyword arguments.*
-
+### Mistake 2: Missing Return Statement
 ```python
-def build_profile(username: str, email: str, role: str = "Guest", status: str = "Active") -> dict[str, str]:
-    """Creates a dictionary representation of a user profile."""
-    return {
-        "username": username,
-        "email": email,
-        "role": role,
-        "status": status
-    }
+# BUGGY CODE
+def calculate(a, b):
+    result = a + b
 
-# Call using positional arguments only
-p1 = build_profile("saurabh_21", "saurabh@example.com")
+x = calculate(5, 5)
+print(x)  # Prints None!
+```
+* **Why it happens**: Functions without an explicit `return` statement return `None` by default in Python.
+* **How to avoid**: Ensure you return calculations: `return result`.
 
-# Call combining positional, default, and keyword arguments
-p2 = build_profile("admin_user", "admin@example.com", status="Inactive", role="Administrator")
+---
 
-print("Profile 1:", p1)
-print("Profile 2:", p2)
+# 11. Best Practices & Pythonic Code
+
+* **Use Multiple Returns** as tuples for complex calculations.
+```python
+# Pythonic Unpacking
+def get_min_max(arr: list[int]) -> tuple[int, int]:
+    return min(arr), max(arr)
+
+low, high = get_min_max([5, 2, 9])
 ```
 
 ---
 
-### Q3. Modular Calculator (Single Responsibility Principle)
-*Create a basic calculator function that takes two numbers and an operator (`+`, `-`, `*`, `/`) and returns the computed result. Use helper functions for mathematical operations.*
+# 12. Interview Questions
 
-```python
-def add(x: float, y: float) -> float: return x + y
-def subtract(x: float, y: float) -> float: return x - y
-def multiply(x: float, y: float) -> float: return x * y
-def divide(x: float, y: float) -> float:
-    if y == 0:
-        raise ZeroDivisionError("Cannot divide by zero.")
-    return x / y
-
-def calculator(num1: float, num2: float, operator: str) -> float:
-    """
-    Performs arithmetic operations on two numbers based on operator.
-    Demonstrates routing functions modularly.
-    """
-    operations = {
-        "+": add,
-        "-": subtract,
-        "*": multiply,
-        "/": divide
-    }
-    
-    if operator not in operations:
-        raise ValueError(f"Invalid operator '{operator}'. Use +, -, *, or /.")
-        
-    # Execute the associated function
-    return operations[operator](num1, num2)
-
-# Test Runs
-print(f"12 + 5 = {calculator(12, 5, '+')}")
-print(f"8 * 9 = {calculator(8, 9, '*')}")
-```
+### Q1. What is the difference between parameters and arguments?
+* **Answer**: 
+  * **Parameters** are the placeholders defined in the function signature (e.g., `def func(x, y):`).
+  * **Arguments** are the actual values passed to the function during invocation (e.g., `func(10, 20)`).
 
 ---
 
-### Q4. Prime Range Searcher (Composition Pattern)
-*Build a function `find_primes_in_range(start, end)` that uses a helper function `is_prime(n)` to find and return all prime numbers within a range.*
-
-```python
-import math
-
-def is_prime(n: int) -> bool:
-    """Helper function to verify prime numbers in O(sqrt(N)) time complexity."""
-    if n <= 1:
-        return False
-    if n == 2:
-        return True
-    if n % 2 == 0:
-        return False
-    
-    for divisor in range(3, int(math.sqrt(n)) + 1, 2):
-        if n % divisor == 0:
-            return False
-    return True
-
-def find_primes_in_range(start: int, end: int) -> list[int]:
-    """Finds all prime numbers inside a closed interval [start, end]."""
-    primes = []
-    for val in range(start, end + 1):
-        if is_prime(val):
-            primes.append(val)
-    return primes
-
-# Test Run
-print("Primes between 10 and 50:", find_primes_in_range(10, 50))
-# Output: [11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47]
-```
+### Q2. Explain the LEGB rule.
+* **Answer**: It is the order Python searches namespaces for variable resolution: Local, Enclosing (nested functions), Global (module level), and Built-in namespaces.
 
 ---
 
-### Q5. Temperature Converter (Multi-Value Return Pattern)
-*Write a function that accepts a temperature value in Celsius and returns its converted value in both Fahrenheit and Kelvin.*
+### Q3. Tricky Output Question
+**What is the output of the following code?**
+```python
+def test(x, y=[]):
+    y.append(x)
+    return y
+print(test(1, [2]))
+```
+* **Expected Output**: `[2, 1]`
+* **Explanation**: Because an explicit argument `[2]` was passed, the default list `[]` was bypassed and the user-provided list was updated.
 
+---
+
+# 13. Exam Points
+
+* **`def`**: The keyword used to start user-defined function blocks.
+* **Docstring**: Explanatory string placed inside triple quotes as the first line of a function.
+* **`return`**: Terminates function execution and passes values back.
+
+---
+
+# 14. Real-World Examples
+
+## Example 1: Multi-value Return Pattern
 ```python
 def convert_celsius(celsius: float) -> tuple[float, float]:
-    """
-    Converts Celsius to Fahrenheit and Kelvin.
-    
-    Returns:
-        tuple[float, float]: (Fahrenheit, Kelvin)
-    """
+    """Converts Celsius to Fahrenheit and Kelvin."""
     fahrenheit = (celsius * 9/5) + 32
     kelvin = celsius + 273.15
     return fahrenheit, kelvin
 
-# Test Case
-c_temp = 25.0
-f_temp, k_temp = convert_celsius(c_temp)
-print(f"{c_temp}°C is equivalent to {f_temp}°F and {k_temp} K.")
+f, k = convert_celsius(25.0)
+print(f"Fahrenheit: {f}, Kelvin: {k}")
+```
+* **Explanation**: Returns multiple float objects as a tuple.
+* **Expected Output**:
+  ```
+  Fahrenheit: 77.0, Kelvin: 298.15
+  ```
+* **Time/Space Complexity**: $\mathcal{O}(1)$
+
+---
+
+# 15. Mini Practice
+
+### Easy
+Create a function that takes a name and prints a greeting. Include type hints.
+
+### Medium
+Write a calculator function that accepts two numbers and a math symbol (`+`, `-`, `*`, `/`) and performs the calculation using helper functions.
+
+### Hard
+Write a function `find_primes_in_range(start, end)` that calls a helper function `is_prime(n)` to find all primes in an interval.
+
+---
+
+# 16. Summary Table
+
+| Argument Type | Position Strict | Named | Default Fallback |
+| :--- | :--- | :--- | :--- |
+| **Positional** | Yes | No | No |
+| **Keyword** | No | Yes | No |
+| **Default** | No | Optional | Yes |
+
+---
+
+# 17. Cheat Sheet
+
+```python
+# Structure
+def func_name(param: type) -> return_type:
+    return value
+
+# Variable args (tuple)
+def add(*args):
+    return sum(args)
+
+# Keyword args (dict)
+def info(**kwargs):
+    pass
 ```
 
 ---
-*Write modular code, keep components focused, and minimize side effects!*  
-⭐ **Crafted with care for Python Learners & DSA Aspirants.**
+
+# 18. Flow Diagram
+
+```mermaid
+graph TD
+    A[Function Call] --> B[Create Stack Frame]
+    B --> C[Bind arguments to parameters]
+    C --> D[Execute statements]
+    D --> E[Evaluate return value]
+    E --> F[Destroy Stack Frame]
+```
+
+---
+
+# 19. Comparison Table
+
+| Feature | Return Statement | Print Statement |
+| :--- | :--- | :--- |
+| **Purpose** | Sends data back to calling environment | Outputs representation to terminal |
+| **Usability** | Result can be stored and reused | Output cannot be captured for variables |
+
+---
+
+# 20. Things to Remember
+
+> [!IMPORTANT]
+> **Key takeaways on Functions:**
+> 1. **Default arguments trap**: Never use mutable types (like lists/dicts) as default parameter values.
+> 2. **Leverage type hints**: Use type hints to build cleaner codebases.
